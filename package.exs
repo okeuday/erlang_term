@@ -17,7 +17,7 @@ defmodule ErlangTerm.Mixfile do
   end
 
   defp package do
-    [files: ~w(src doc README.markdown),
+    [files: ~w(src doc README.markdown LICENSE),
      contributors: ["Michael Truog"],
      licenses: ["BSD"],
      links: %{"GitHub" => "https://github.com/okeuday/erlang_term"}]
