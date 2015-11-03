@@ -90,7 +90,10 @@ byte_size_terms_in_list([], _) ->
 byte_size_terms_in_list([Term | L], WordSize) ->
     1 * WordSize +
     byte_size_terms(Term, WordSize) +
-    byte_size_terms_in_list(L, WordSize).
+    byte_size_terms_in_list(L, WordSize);
+% element of improper list
+byte_size_terms_in_list(Term, WordSize) ->
+    byte_size_terms(Term, WordSize).
 
 byte_size_terms_in_tuple(Size, Size, Term, WordSize) ->
     byte_size_terms(erlang:element(Size, Term), WordSize);
@@ -131,6 +134,8 @@ internal_test() ->
     32 = byte_size(<<$a, $b, $c>>, 8),
     8 = byte_size([], 8),
     24 = byte_size([0], 8),
+    % improper list
+    32 = byte_size([1|2], 8),
     16 = byte_size({}, 8),
     24 = byte_size({0}, 8),
     8 = byte_size(0, 8),
