@@ -8,7 +8,7 @@
 %%%
 %%% BSD LICENSE
 %%% 
-%%% Copyright (c) 2014, Michael Truog <mjtruog at gmail dot com>
+%%% Copyright (c) 2014-2015, Michael Truog <mjtruog at gmail dot com>
 %%% All rights reserved.
 %%% 
 %%% Redistribution and use in source and binary forms, with or without
@@ -43,8 +43,8 @@
 %%% DAMAGE.
 %%%
 %%% @author Michael Truog <mjtruog [at] gmail (dot) com>
-%%% @copyright 2014 Michael Truog
-%%% @version 0.1.0 {@date} {@time}
+%%% @copyright 2014-2015 Michael Truog
+%%% @version 1.5.1 {@date} {@time}
 %%%------------------------------------------------------------------------
 
 -module(erlang_term).
@@ -57,6 +57,35 @@
 -compile({no_auto_import,
           [byte_size/1,
            byte_size/2]}).
+
+-define(HEAP_BINARY_LIMIT, 64).
+
+-ifdef(ERLANG_OTP_VERSION_16).
+-else.
+-define(ERLANG_OTP_VERSION_17_FEATURES, undefined).
+-endif.
+-ifdef(ERLANG_OTP_VERSION_17_FEATURES).
+-define(BYTE_SIZE_TERMS_MAP,
+    ;
+byte_size_terms(Term, WordSize)
+    when is_map(Term) ->
+    % a map's memory size is difficult to anticipate, so it is taken
+    % directly from erts and any large binary sizes are added
+    byte_size_term_local(Term, WordSize) + maps:fold(fun(K, V, Bytes) ->
+        byte_size_term_global(K) + byte_size_term_global(V) + Bytes
+    end, 0, Term)
+    ;).
+-define(INTERNAL_TEST_MAP,
+    88 = byte_size(#{1=>1, 2=>2, 3=>3}, 8),
+    136 = byte_size(#{1=>RefcBinary, 2=>2, 3=>3}, 8) -
+          erlang:byte_size(RefcBinary),
+    ).
+-else.
+-define(BYTE_SIZE_TERMS_MAP,
+    ;).
+-define(INTERNAL_TEST_MAP,
+    ok).
+-endif.
 
 %%%------------------------------------------------------------------------
 %%% External interface functions
@@ -81,7 +110,8 @@ byte_size_terms({}, WordSize) ->
 byte_size_terms(Term, WordSize)
     when is_tuple(Term) ->
     2 * WordSize +
-    byte_size_terms_in_tuple(1, erlang:tuple_size(Term), Term, WordSize);
+    byte_size_terms_in_tuple(1, erlang:tuple_size(Term), Term, WordSize)
+?BYTE_SIZE_TERMS_MAP
 byte_size_terms(Term, WordSize) ->
     byte_size_term(Term, WordSize).
 
@@ -101,31 +131,38 @@ byte_size_terms_in_tuple(I, Size, Term, WordSize) ->
     byte_size_terms_in_tuple(I + 1, Size, Term, WordSize).
 
 byte_size_term(Term, WordSize) ->
-    DataSize = if
-        is_binary(Term) ->
-            BinarySize = erlang:byte_size(Term),
-            if
-                BinarySize > 64 ->
-                    BinarySize;
-                true ->
-                    % in the heap size
-                    0
-            end;
+    byte_size_term_local(Term, WordSize) + byte_size_term_global(Term).
+
+byte_size_term_local(Term, WordSize) ->
+    % stack/register size + heap size
+    (1 + erts_debug:flat_size(Term)) * WordSize.
+
+byte_size_term_global(Term)
+    when is_binary(Term) ->
+    % global data storage within allocators
+    BinarySize = erlang:byte_size(Term),
+    if
+        BinarySize > ?HEAP_BINARY_LIMIT ->
+            % refc binary
+            BinarySize;
         true ->
+            % heap binary
             0
-    end,
-    % stack/register size + heap size + data size
-    (1 + erts_debug:flat_size(Term)) * WordSize + DataSize.
+    end;
+byte_size_term_global(_) ->
+    0.
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
 
 internal_test() ->
-    true = (7 == (1 + erts_debug:flat_size(<<1:520>>))),
+    RefcBinary = <<1:((?HEAP_BINARY_LIMIT + 1) * 8)>>,
+    HeapBinary = <<1:(?HEAP_BINARY_LIMIT * 8)>>,
+    true = (7 == (1 + erts_debug:flat_size(RefcBinary))),
     % doesn't work in console shell
     % (process heap size of binary is excluded
     %  when executed in the console shell)
-    true = (11 == (1 + erts_debug:flat_size(<<1:512>>))),
+    true = (11 == (1 + erts_debug:flat_size(HeapBinary))),
     true = (4 == (1 + erts_debug:flat_size(<<1:8>>))),
 
     24 = byte_size(<<>>, 8),
@@ -139,6 +176,7 @@ internal_test() ->
     8 = byte_size(0, 8),
     8 = byte_size(erlang:self(), 8),
     8 = byte_size(atom, 8),
+    ?INTERNAL_TEST_MAP
     ok.
 
 -endif.
