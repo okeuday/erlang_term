@@ -84,7 +84,8 @@ byte_size_terms(Term, WordSize)
 -define(BYTE_SIZE_TERMS_MAP,
     ;).
 -define(INTERNAL_TEST_MAP,
-    ok).
+    ok,
+    ).
 -endif.
 
 %%%------------------------------------------------------------------------
