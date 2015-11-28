@@ -1,5 +1,5 @@
-Erlang Term Memory Consumption
-==============================
+Erlang Term Info (Memory Consumption)
+=====================================
 
 [![Build Status](https://secure.travis-ci.org/okeuday/erlang_term.png?branch=master)](http://travis-ci.org/okeuday/erlang_term)
 
