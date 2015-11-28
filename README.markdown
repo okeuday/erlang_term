@@ -38,9 +38,8 @@ Size information should match the [Erlang Efficiency Guide memory information](h
 * Fun: 9..13 words + size of environment
 
 Maps use a "flatmap" (a pair of tuples) before switching to a
-Hash Array Mapped Trie (HAMT) implementation after the size is
-greater-than `MAP_SMALL_MAP_LIMIT` (32) keys have been stored.
-The upper-limit of a HAMT map is used in ERTS
+Hash Array Mapped Trie (HAMT) implementation after the size becomes larger than
+`MAP_SMALL_MAP_LIMIT` (32).  The upper-limit of a HAMT map is used in ERTS
 (`HASHMAP_ESTIMATED_HEAP_SIZE(SIZE) == (SIZE*3 + (2*SIZE/5)*2)`)
 but the result severely exaggerates the size of a map.  Due to the difficulty
 anticipating the size of a map, the size is taken directly by using
