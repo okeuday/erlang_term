@@ -67,12 +67,10 @@
 -ifdef(ERLANG_OTP_VERSION_17_FEATURES).
 -define(BYTE_SIZE_TERMS_MAP,
     ;
-byte_size_terms(Term, WordSize)
+byte_size_terms(Term)
     when is_map(Term) ->
-    % a map's memory size is difficult to anticipate, so it is taken
-    % directly from erts and any large binary sizes are added
-    byte_size_term_local(Term, WordSize) + maps:fold(fun(K, V, Bytes) ->
-        byte_size_term_global(K) + byte_size_term_global(V) + Bytes
+    maps:fold(fun(K, V, Bytes) ->
+        byte_size_terms(K) + byte_size_terms(V) + Bytes
     end, 0, Term)
     ;).
 -define(INTERNAL_TEST_MAP,
@@ -96,43 +94,44 @@ byte_size(Term) ->
     byte_size(Term, erlang:system_info(wordsize)).
 
 byte_size(Term, WordSize) ->
-    byte_size_terms(Term, WordSize).
+    byte_size_term_local(Term, WordSize) +
+    byte_size_terms(Term).
 
 %%%------------------------------------------------------------------------
 %%% Private functions
 %%%------------------------------------------------------------------------
 
-byte_size_terms(Term, WordSize)
+byte_size_terms(Term)
     when is_list(Term) ->
-    1 * WordSize +
-    byte_size_terms_in_list(Term, WordSize);
-byte_size_terms({}, WordSize) ->
-    2 * WordSize;
-byte_size_terms(Term, WordSize)
+    byte_size_terms_in_list(Term);
+byte_size_terms(Term)
     when is_tuple(Term) ->
-    2 * WordSize +
-    byte_size_terms_in_tuple(1, erlang:tuple_size(Term), Term, WordSize)
+    if
+        Term == {} ->
+            0;
+        true ->
+            byte_size_terms_in_tuple(1, erlang:tuple_size(Term), Term)
+    end
 ?BYTE_SIZE_TERMS_MAP
-byte_size_terms(Term, WordSize) ->
-    byte_size_term(Term, WordSize).
+byte_size_terms(Term) ->
+    byte_size_term(Term).
 
-byte_size_terms_in_list([], _) ->
+byte_size_terms_in_list([]) ->
     0;
-byte_size_terms_in_list([Term | L], WordSize) ->
-    1 * WordSize +
-    byte_size_terms(Term, WordSize) +
-    byte_size_terms_in_list(L, WordSize);
-byte_size_terms_in_list(Term, WordSize) ->
-    byte_size_terms(Term, WordSize). % element of improper list
+byte_size_terms_in_list([Term | L]) ->
+    byte_size_terms(Term) +
+    byte_size_terms_in_list(L);
+byte_size_terms_in_list(Term) ->
+    byte_size_terms(Term). % element of improper list
 
-byte_size_terms_in_tuple(Size, Size, Term, WordSize) ->
-    byte_size_terms(erlang:element(Size, Term), WordSize);
-byte_size_terms_in_tuple(I, Size, Term, WordSize) ->
-    byte_size_terms(erlang:element(I, Term), WordSize) +
-    byte_size_terms_in_tuple(I + 1, Size, Term, WordSize).
+byte_size_terms_in_tuple(Size, Size, Term) ->
+    byte_size_terms(erlang:element(Size, Term));
+byte_size_terms_in_tuple(I, Size, Term) ->
+    byte_size_terms(erlang:element(I, Term)) +
+    byte_size_terms_in_tuple(I + 1, Size, Term).
 
-byte_size_term(Term, WordSize) ->
-    byte_size_term_local(Term, WordSize) + byte_size_term_global(Term).
+byte_size_term(Term) ->
+    byte_size_term_global(Term).
 
 byte_size_term_local(Term, WordSize) ->
     % stack/register size + heap size
@@ -170,8 +169,8 @@ internal_test() ->
     32 = byte_size(<<"abc">>, 8),
     32 = byte_size(<<$a, $b, $c>>, 8),
     8 = byte_size([], 8),
-    24 = byte_size([0], 8),
-    32 = byte_size([1|2], 8), % improper list
+    24 = byte_size([0|[]], 8),
+    24 = byte_size([1|2], 8), % improper list
     16 = byte_size({}, 8),
     24 = byte_size({0}, 8),
     8 = byte_size(0, 8),

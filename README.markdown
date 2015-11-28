@@ -42,7 +42,7 @@ Hash Array Mapped Trie (HAMT) implementation after the size becomes larger than
 `MAP_SMALL_MAP_LIMIT` (32).  The upper-limit of a HAMT map is used in ERTS
 (`HASHMAP_ESTIMATED_HEAP_SIZE(SIZE) == (SIZE*3 + (2*SIZE/5)*2)`)
 but the result severely exaggerates the size of a map.  Due to the difficulty
-anticipating the size of a map, the size is taken directly by using
+anticipating the in-memory size of a map, the size is taken directly by using
 `erts_debug:flat_size/1`.  The C macros above may change in the future
 (the macros above are from `erts/emulator/beam/erl_map.h` in Erlang 18.1).
 
