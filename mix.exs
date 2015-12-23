@@ -3,7 +3,7 @@ defmodule ErlangTerm.Mixfile do
 
   def project do
     [app: :erlang_term,
-     version: "1.5.0",
+     version: "1.5.1",
      language: :erlang,
      description: description,
      package: package,
@@ -20,7 +20,7 @@ defmodule ErlangTerm.Mixfile do
 
   defp package do
     [files: ~w(src doc rebar.config README.markdown LICENSE),
-     contributors: ["Michael Truog"],
+     maintainers: ["Michael Truog"],
      licenses: ["BSD"],
      links: %{"GitHub" => "https://github.com/okeuday/erlang_term"}]
    end
