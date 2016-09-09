@@ -3,7 +3,7 @@ defmodule ErlangTerm.Mixfile do
 
   def project do
     [app: :erlang_term,
-     version: "1.5.1",
+     version: "1.5.2",
      language: :erlang,
      description: description,
      package: package,
