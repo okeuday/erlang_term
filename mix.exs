@@ -24,7 +24,7 @@ defmodule ErlangTerm.Mixfile do
   defp package do
     [files: ~w(src doc rebar.config README.markdown LICENSE),
      maintainers: ["Michael Truog"],
-     licenses: ["BSD"],
+     licenses: ["MIT"],
      links: %{"GitHub" => "https://github.com/okeuday/erlang_term"}]
    end
 end
