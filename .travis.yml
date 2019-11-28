@@ -1,11 +1,11 @@
 language: erlang
 otp_release:
-  - 21.1
+  - 22.1
+  - 21.3
   - 20.3
   - 19.3
   - 18.3
   - 17.5
-  - R16B
 before_script:
 script: rebar compile eunit
 after_script:
