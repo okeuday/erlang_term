@@ -1,13 +1,13 @@
-Delivered-To: mjtruog@gmail.com
-Return-Path: <sverker.eriksson@ericsson.com>
+Delivered-To: mjtruog at gmail dot com
+Return-Path: <sverker.eriksson at ericsson dot com>
 Date: Fri, 26 Sep 2014 15:46:44 +0200
-From: Sverker Eriksson <sverker.eriksson@ericsson.com>
-To: Michael Truog <mjtruog@gmail.com>
-CC: <erlang-bugs@erlang.org>
+From: Sverker Eriksson <sverker.eriksson at ericsson dot com>
+To: Michael Truog <mjtruog at gmail dot com>
+CC: <erlang-bugs at erlang dot org>
 Subject: Re: [erlang-bugs] erts_debug:flat_size/1 wrong?
 Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-Path: sverker.eriksson@ericsson.com
+Return-Path: sverker.eriksson at ericsson dot com
 
 On 09/26/2014 04:19 AM, Michael Truog wrote:
 > Hi,
