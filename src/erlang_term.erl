@@ -182,8 +182,8 @@ t_basic() ->
     8 = byte_size([], 8),
     24 = byte_size([0|[]], 8),
     24 = byte_size([1|2], 8), % improper list
-    24 = byte_size({1}, 8),
     24 = byte_size({0}, 8),
+    32 = byte_size({0,1}, 8),
     8 = byte_size(0, 8),
     8 = byte_size(erlang:self(), 8),
     8 = byte_size(atom, 8),
