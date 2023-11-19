@@ -77,11 +77,17 @@ byte_size_terms(Term)
     ).
 -endif.
 -ifdef(ERLANG_OTP_VERSION_25_FEATURES).
+-define(INTERNAL_TEST_EXTERNAL_FUNCTION,
+    72 = byte_size({fun module:function/0, []}, 8),
+    ).
 -define(INTERNAL_TEST_TUPLE_EMPTY,
     8 = byte_size({}, 8),
     32 = byte_size(#{}, 8),
     ).
 -else.
+-define(INTERNAL_TEST_EXTERNAL_FUNCTION,
+    48 = byte_size({fun module:function/0, []}, 8),
+    ).
 -ifdef(ERLANG_OTP_VERSION_17_FEATURES).
 -define(INTERNAL_TEST_TUPLE_EMPTY,
     16 = byte_size({}, 8),
@@ -195,6 +201,8 @@ t_basic() ->
     8 = byte_size(0, 8),
     8 = byte_size(erlang:self(), 8),
     8 = byte_size(atom, 8),
+    40 = byte_size({module, function, []}, 8),
+    ?INTERNAL_TEST_EXTERNAL_FUNCTION
     ?INTERNAL_TEST_TUPLE_EMPTY
     ?INTERNAL_TEST_MAP
     ok.
