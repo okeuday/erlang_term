@@ -1,11 +1,13 @@
-dist: jammy
 language: erlang
 otp_release:
-  - 26.1.1
-  - 25.3.2.6
   - 24.3.1
-#before_install:
-#  - sudo apt install rebar
+  - 23.3.1
+  - 22.3.4.25
+  - 21.3.8.1
+  - 20.3.8.22
+  - 19.3
+  - 18.3
+  - 17.5
 before_script:
 script: rebar compile eunit
 after_script:
