@@ -1,11 +1,9 @@
-dist: focal
+dist: jammy
 language: erlang
 otp_release:
-  - 26.1
+  - 26.1.1
   - 25.3.2.6
   - 24.3.1
-  - 23.3.1
-  - 22.3.4.25
 before_install:
   - sudo apt install rebar
 before_script:
