@@ -5,11 +5,6 @@ otp_release:
   - 24.3.1
   - 23.3.1
   - 22.3.4.25
-  - 21.3.8.1
-  - 20.3.8.22
-  - 19.3
-  - 18.3
-  - 17.5
 before_script:
 script:
   - rebar3 compile
